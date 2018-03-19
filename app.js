@@ -37,15 +37,39 @@ function loadListeners() {
     controls = new THREE.OrbitControls(camera, renderer.domElement);
 }
 function loadObjects() {
-    let geometry = new THREE.CylinderGeometry(5, 5, 20, 32);
-    let material = new THREE.MeshBasicMaterial(
-        {
-            color: 0xFF00FF
-        });
-    cube = new THREE.Mesh(geometry, material);
+    const link = 'https://static.pexels.com/photos/242616/pexels-photo-242616.jpeg'
+    // const link = 'data/image1.png'
+    let geometry = new THREE.CubeGeometry(5, 5, 5);
+
+    let materials = [
+        new THREE.MeshBasicMaterial({
+            map: new THREE.TextureLoader().load(link), side: THREE.DoubleSide
+        }),
+        new THREE.MeshBasicMaterial({
+            map: new THREE.TextureLoader().load(link), side: THREE.DoubleSide
+        }),
+        new THREE.MeshBasicMaterial({
+            map: new THREE.TextureLoader().load(link), side: THREE.DoubleSide
+        }),
+        new THREE.MeshBasicMaterial({
+            map: new THREE.TextureLoader().load(link), side: THREE.DoubleSide
+        }),
+        new THREE.MeshBasicMaterial({
+            map: new THREE.TextureLoader().load(link), side: THREE.DoubleSide
+        }),
+        new THREE.MeshBasicMaterial({
+            map: new THREE.TextureLoader().load(link), side: THREE.DoubleSide
+        })
+    ];
+    // let material = new THREE.MeshFaceMaterial(materials);
+    // let material = new THREE.MeshBasicMaterial(
+    //     {
+    //         color: 0xFF00FF
+    //     });
+    cube = new THREE.Mesh(geometry, materials);
     scene.add(cube);
 
-    camera.position.z = 40;
+    camera.position.z = 1;
 }
 
 function loadFunctions() {
