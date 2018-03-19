@@ -27,17 +27,12 @@ function loadListeners() {
         camera.updateProjectionMatrix();
     });
 
-    window.addEventListener('keypress', function(event) {
-        
-        if(event.keyCode === 114) {
-            if(rotation) {
-                rotation = false;
-            } else {
-                rotation = true;
-            }            
-        }
-        console.log(event.keyCode);
-    })
+    window.addEventListener('mousedown', function(event) {
+        rotation = false;
+    });
+    window.addEventListener('mouseup', function(event) {        
+        rotation = true;       
+    });
 
     controls = new THREE.OrbitControls(camera, renderer.domElement);
 }
@@ -79,7 +74,7 @@ function loadFunctions() {
 }    
 
 function initialize(){
-    rotation = false;
+    rotation = true;
     loadScene();
     loadListeners();
     loadObjects();
