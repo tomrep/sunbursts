@@ -69,7 +69,7 @@ function loadObjects() {
     cube = new THREE.Mesh(geometry, materials);
     scene.add(cube);
 
-    camera.position.z = 20;
+    camera.position.z = 2;
 }
 
 function loadFunctions() {
