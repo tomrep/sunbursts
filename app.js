@@ -1,4 +1,5 @@
  let scene, camera, height, width, renderer, controls;
+ let rotation;
  let cube;
  let update,render,loop;
 
@@ -26,6 +27,18 @@ function loadListeners() {
         camera.updateProjectionMatrix();
     });
 
+    window.addEventListener('keypress', function(event) {
+        
+        if(event.keyCode === 114) {
+            if(rotation) {
+                rotation = false;
+            } else {
+                rotation = true;
+            }            
+        }
+        console.log(event.keyCode);
+    })
+
     controls = new THREE.OrbitControls(camera, renderer.domElement);
 }
 function loadObjects() {
@@ -43,8 +56,14 @@ function loadObjects() {
 function loadFunctions() {
 
     update = function () {
-        cube.rotation.x += 0.01;
-        cube.rotation.y += 0.005;
+        if(rotation) {
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.005;
+        } else {
+            cube.rotation.x += 0;
+            cube.rotation.y += 0;
+        }
+        
     };
 
     render = function () {
@@ -60,6 +79,7 @@ function loadFunctions() {
 }    
 
 function initialize(){
+    rotation = false;
     loadScene();
     loadListeners();
     loadObjects();
