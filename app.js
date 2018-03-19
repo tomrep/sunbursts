@@ -1,4 +1,4 @@
- let scene, camera, height, width, renderer;
+ let scene, camera, height, width, renderer, controls;
  let cube;
  let update,render,loop;
 
@@ -24,7 +24,9 @@ function loadListeners() {
         renderer.setSize(width, height);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
-    })
+    });
+
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
 }
 function loadObjects() {
     let geometry = new THREE.CylinderGeometry(5, 5, 20, 32);
