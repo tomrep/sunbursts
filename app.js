@@ -134,39 +134,41 @@ function loadObjects() {
     // scene.add(mesh);
 
     for(j = 0; j < 1; j++) {
+
         var layer = $.grep(data, function (file) {
             return file.level === default_level + 1 + j
         });
+
         var file_count =  layer.reduce((value, file) => value + file.count, 0);
         var rotation = 0;
-        var angle = 0;
+        var start_angle = 0;
+        var end_angle = 0;
 
         for (i = 0; i < layer.length; i++) {
 
-            // rotation += angle;
             var countP = layer[i].count / file_count;
-            angle = Math.PI * 2 * countP;
+            end_angle = start_angle + Math.PI * 2 * countP;
 
-            var size = layer[i].size/1000000;
-
+            var size = Math.round(layer[i].size/(1024*1024));
 
             var arcShape = new THREE.Shape();
             arcShape.moveTo( 0, 0 );
-            arcShape.absarc( 0, 0, 7, 0, angle, true );
+            arcShape.absarc( 0, 0, 7, start_angle, end_angle, true );
             
             var holePath = new THREE.Path();
             holePath.moveTo( 0, 0 );
-            holePath.absarc( 0, 0, 5, 0, angle, true );
+            holePath.absarc( 0, 0, 5, start_angle, end_angle, true );
             arcShape.holes.push( holePath );
             
-            var extrudeSettings = { curveSegments: 50, amount: 0, bevelEnabled: false};
+            var extrudeSettings = { curveSegments: 50, amount: size, bevelEnabled: false};
             
             geometry = new THREE.ExtrudeGeometry( arcShape, extrudeSettings );
             
             var mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( {color: getColor(layer[i].type) }) );
             mesh.position.z = i;
             scene.add(mesh);
-                    
+            
+            start_angle = end_angle;
             // torus( polomer vnutra, polomer trubky, ako kruhove je vnutro, ako kruhova je trubka, kolko stupnov
             // var geometry = new THREE.TorusGeometry(5, 0.2, 50, 100, angle - 0.01);
             // var color = getColor(layer[i].type);
