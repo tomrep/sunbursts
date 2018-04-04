@@ -17,7 +17,7 @@ var update, render, loop;
 // function to load data form DataSet
 function loadData() {
     $.ajax({
-        url: '../python/data.json',
+        url: 'data.json',
         dataType: 'json',
         async: false,
         success: function(json) {
