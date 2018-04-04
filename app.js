@@ -57,6 +57,19 @@ function loadListeners() {
 
 // helper function to assign color to elements
 function getColor(type) {
+    if(type === 1){
+        return 0xff0000;
+    } else if (type === 2) {
+        return 0xedff2d
+    } else if (type === 3) {
+        return 0x18af1d
+    } else if( type === 4) {
+        return 0x9e1284
+    } else if( type === 5) {
+        return 0x848484
+    } else {
+        return 0x00ff00;
+    }
      if(type === "Directory") {
          return 0x22309b
      } else if (type === 'Text') {
@@ -81,7 +94,7 @@ function createText(file){
     date = new Date(file[0].mtime);
     text += 'Modified : ' + date.toLocaleString() + '\n';
     var size = Math.round(file[0].size*100/(1024*1024))/100;
-    text += 'Size : '+ size + 'MB\n';
+    text += 'Size : '+ size + ' MB\n';
     if (file.type === 'Directory')
         text += 'Number of files : ' + file[0].count;
 
@@ -115,7 +128,7 @@ function loadObjects() {
         return file.level === default_level
     });
     
-    createText(root);
+    // createText(root);
 
     // var cubeGeo = new THREE.CubeGeometry(7, 5, 0);
     // var material = [
@@ -132,7 +145,14 @@ function loadObjects() {
     // var mesh = new THREE.Mesh(cubeGeo, material);
     // mesh.position.z = -0.7;
     // scene.add(mesh);
+    
 
+    // -----------------------------------------------------------------------------
+  
+    // -----------------------------------------------------------------------------
+    var circleG = new THREE.CircleGeometry(30, 64,64);
+    var mesh = new THREE.Mesh(circleG, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    scene.add(mesh);
     for(j = 0; j < 1; j++) {
 
         var layer = $.grep(data, function (file) {
@@ -140,35 +160,51 @@ function loadObjects() {
         });
 
         var file_count =  layer.reduce((value, file) => value + file.count, 0);
+        console.log(file_count);
         var rotation = 0;
-        var start_angle = 0;
+        var start_angle = 0.01;
         var end_angle = 0;
+        var inRad = 30;
+        var outRad = 50;
+        for (i = 0; i < 6; i++) {
 
-        for (i = 0; i < layer.length; i++) {
-
-            var countP = layer[i].count / file_count;
-            end_angle = start_angle + Math.PI * 2 * countP;
-
+            var countP = layer[i].count / file_count;           
+            angle = Math.PI*2*countP;
             var size = Math.round(layer[i].size/(1024*1024));
 
-            var arcShape = new THREE.Shape();
-            arcShape.moveTo( 0, 0 );
-            arcShape.absarc( 0, 0, 7, start_angle, end_angle, true );
+            // radius, radius, height, segments, segments, open, start_angle, end_angle
+            var cylinderGeometry = new THREE.CylinderGeometry( outRad, outRad, size, 32, 32,false, start_angle, angle);
+            var cylinderMesh = new THREE.Mesh( cylinderGeometry, new THREE.MeshBasicMaterial({ color: 0xff0000 }) );
+            var cylinder_bsp = new ThreeBSP (cylinderMesh);    
+    
+            cylinderGeometry = new THREE.CylinderGeometry( inRad, inRad, size, 32, 32,false, start_angle, angle);
+            cylinderMesh = new THREE.Mesh( cylinderGeometry, new THREE.MeshBasicMaterial({ color: 0xff0000 }) );
+            var cylinder_bsp_sub = new ThreeBSP (cylinderMesh);
+
+            var subtract_bsp = cylinder_bsp.subtract( cylinder_bsp_sub );
+
+
+            // var boxGeormetry = new THREE.BoxGeometry(0, 20, size);
+		    // var boxMesh = new THREE.Mesh( boxGeormetry, new THREE.MeshBasicMaterial( { color: getColor(i), side: THREE.DoubleSide }) );            
+            // boxMesh.position.set(0, -20*2 ,-size/2);
+            // boxMesh.rotation.x = angle;
+
+            //  scene.add(boxMesh);
+            // boxMesh.position.set(-25,0,25);
+            // subtract_bsp2 = subtract_bsp2.subtract(new ThreeBSP (boxMesh)); //circle with missing 
+            // subtract_bsp = subtract_bsp.subtract(subtract_bsp2);
+            // boxMesh.position.set(-25,0,-25);
+            // subtract_bsp2 = subtract_bsp2.subtract(new ThreeBSP (boxMesh)); //circle with missing 
+            // var result = subtract_bsp2.toMesh( material );
             
-            var holePath = new THREE.Path();
-            holePath.moveTo( 0, 0 );
-            holePath.absarc( 0, 0, 5, start_angle, end_angle, true );
-            arcShape.holes.push( holePath );
-            
-            var extrudeSettings = { curveSegments: 50, amount: size, bevelEnabled: false};
-            
-            geometry = new THREE.ExtrudeGeometry( arcShape, extrudeSettings );
-            
-            var mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( {color: getColor(layer[i].type) }) );
-            mesh.position.z = i;
-            scene.add(mesh);
-            
-            start_angle = end_angle;
+           
+
+            var material = new THREE.MeshBasicMaterial( { color: getColor(i), side: THREE.DoubleSide } );
+            var result = subtract_bsp.toMesh( material );
+            result.rotation.x = Math.PI/2;
+            result.position.z = -1*size/2;
+	        scene.add( result );            
+            start_angle += angle;
             // torus( polomer vnutra, polomer trubky, ako kruhove je vnutro, ako kruhova je trubka, kolko stupnov
             // var geometry = new THREE.TorusGeometry(5, 0.2, 50, 100, angle - 0.01);
             // var color = getColor(layer[i].type);
@@ -229,7 +265,7 @@ function loadObjects() {
     // scene.add(line);
 
 
-    camera.position.z = 10;
+    camera.position.z = 300;
 }
 
 // rendering fuction
