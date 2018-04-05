@@ -103,18 +103,18 @@ function createText(file){
     loader.load( 'fonts/helvetiker_bold.typeface.json', function (font) {
         textGeometry= new THREE.TextGeometry( text, {
             font: font,
-            size: 0.3,
+            size: 3,
             height: 0,
             curveSegments: 36
         });
         var material = new THREE.MeshBasicMaterial( {
-            color: 0xffffff,
+            color: 0x0000ff,
             side: THREE.DoubleSide
         });
         var mesh = new THREE.Mesh(textGeometry, material);
-        mesh.position.x = -3;
+        mesh.position.x = -20;
         mesh.position.y = 1.5;
-        mesh.position.z = 0;
+        mesh.position.z = 0.1;
         scene.add(mesh);
     });
 }
@@ -129,30 +129,11 @@ function loadObjects() {
     });
     
     // createText(root);
-
-    // var cubeGeo = new THREE.CubeGeometry(7, 5, 0);
-    // var material = [
-    //     new THREE.MeshBasicMaterial({transparent: true, opacity: 0.0}),
-    //     new THREE.MeshBasicMaterial({transparent: true, opacity: 0.0}),
-    //     new THREE.MeshBasicMaterial({transparent: true, opacity: 0.0}),
-    //     new THREE.MeshBasicMaterial({transparent: true, opacity: 0.0}),
-    //     new THREE.MeshBasicMaterial({
-    //                 map: new THREE.TextureLoader().load(link), side: THREE.DoubleSide
-    //             }),
-    //     new THREE.MeshBasicMaterial({transparent: true, opacity: 0.0})
-    // ];
-
-    // var mesh = new THREE.Mesh(cubeGeo, material);
-    // mesh.position.z = -0.7;
-    // scene.add(mesh);
     
-
-    // -----------------------------------------------------------------------------
-  
-    // -----------------------------------------------------------------------------
     var circleG = new THREE.CircleGeometry(30, 64,64);
-    var mesh = new THREE.Mesh(circleG, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    var mesh = new THREE.Mesh(circleG, new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
     scene.add(mesh);
+
     for(j = 0; j < 1; j++) {
 
         var layer = $.grep(data, function (file) {
@@ -160,111 +141,45 @@ function loadObjects() {
         });
 
         var file_count =  layer.reduce((value, file) => value + file.count, 0);
-        console.log(file_count);
         var rotation = 0;
-        var start_angle = 0.01;
+        var start_angle = 0;
         var end_angle = 0;
         var inRad = 30;
         var outRad = 50;
         for (i = 0; i < 6; i++) {
 
             var countP = layer[i].count / file_count;           
-            angle = Math.PI*2*countP;
+            angle = Math.PI*2*countP - 0.02;
             var size = Math.round(layer[i].size/(1024*1024));
 
-            // radius, radius, height, segments, segments, open, start_angle, end_angle
-            var cylinderGeometry = new THREE.CylinderGeometry( outRad, outRad, size, 32, 32,false, start_angle, angle);
-            var cylinderMesh = new THREE.Mesh( cylinderGeometry, new THREE.MeshBasicMaterial({ color: 0xff0000 }) );
-            var cylinder_bsp = new ThreeBSP (cylinderMesh);    
-    
-            cylinderGeometry = new THREE.CylinderGeometry( inRad, inRad, size, 32, 32,false, start_angle, angle);
-            cylinderMesh = new THREE.Mesh( cylinderGeometry, new THREE.MeshBasicMaterial({ color: 0xff0000 }) );
-            var cylinder_bsp_sub = new ThreeBSP (cylinderMesh);
+            // OUTER CYLINDER
+            var cylinderGeometry = new THREE.CylinderGeometry(outRad, outRad, size, 32, 32,false, start_angle, angle);
+            var cylinderMesh = new THREE.Mesh(cylinderGeometry, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+            var cylinderBSP = new ThreeBSP(cylinderMesh);    
 
-            var subtract_bsp = cylinder_bsp.subtract( cylinder_bsp_sub );
+            // INNER CYLINDER
+            cylinderGeometry = new THREE.CylinderGeometry(inRad, inRad, size, 32, 32,false, start_angle, angle);
+            cylinderMesh = new THREE.Mesh(cylinderGeometry, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+            var cylinderBSPIn = new ThreeBSP(cylinderMesh);
 
+            var finalBSP = cylinderBSP.subtract(cylinderBSPIn);
 
-            // var boxGeormetry = new THREE.BoxGeometry(0, 20, size);
-		    // var boxMesh = new THREE.Mesh( boxGeormetry, new THREE.MeshBasicMaterial( { color: getColor(i), side: THREE.DoubleSide }) );            
-            // boxMesh.position.set(0, -20*2 ,-size/2);
-            // boxMesh.rotation.x = angle;
+            // SIDES
+            var planeGeometry = new THREE.PlaneGeometry(500, 500);
+            var planeMesh = new THREE.Mesh(planeGeometry, new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide })); 
+            planeMesh.rotation.y = Math.PI/2 + start_angle;
+            var planeBSP = new ThreeBSP(planeMesh);
 
-            //  scene.add(boxMesh);
-            // boxMesh.position.set(-25,0,25);
-            // subtract_bsp2 = subtract_bsp2.subtract(new ThreeBSP (boxMesh)); //circle with missing 
-            // subtract_bsp = subtract_bsp.subtract(subtract_bsp2);
-            // boxMesh.position.set(-25,0,-25);
-            // subtract_bsp2 = subtract_bsp2.subtract(new ThreeBSP (boxMesh)); //circle with missing 
-            // var result = subtract_bsp2.toMesh( material );
-            
-           
-
+            finalBSP = finalBSP.subtract(planeBSP);
             var material = new THREE.MeshBasicMaterial( { color: getColor(i), side: THREE.DoubleSide } );
-            var result = subtract_bsp.toMesh( material );
-            result.rotation.x = Math.PI/2;
-            result.position.z = -1*size/2;
-	        scene.add( result );            
-            start_angle += angle;
-            // torus( polomer vnutra, polomer trubky, ako kruhove je vnutro, ako kruhova je trubka, kolko stupnov
-            // var geometry = new THREE.TorusGeometry(5, 0.2, 50, 100, angle - 0.01);
-            // var color = getColor(layer[i].type);
-            // material = new THREE.MeshBasicMaterial( {
-            //         color: color,
-            //         side: THREE.DoubleSide
-            // });
-            // var torus = new THREE.Mesh(geometry, material);
-            // torus.position.z = j;
-            // torus.rotation.z = rotation;
-            // scene.add(torus);
+            var final = finalBSP.toMesh( material );
+            final.rotation.x = Math.PI/2;
+            final.position.z = -1*size/2;
+            scene.add(final);
+
+            start_angle += angle + 0.02;
         }
     }
- 
-
-    //----------------------------------
-    // TOTO JE POUZITELNE
-    // var arcShape = new THREE.Shape();
-    // arcShape.moveTo( 50, 10 );
-    // arcShape.absarc( 10, 10, 40, 0, Math.PI * 2, false );
-    //
-    // var holePath = new THREE.Path();
-    // holePath.moveTo( 20, 10 );
-    // holePath.absarc( 10, 10, 10, 0, Math.PI * 2, true );
-    // arcShape.holes.push( holePath );
-    //
-    // var extrudeSettings = { amount: 0, bevelEnabled: false};
-    //
-    // geometry = new THREE.ExtrudeGeometry( arcShape, extrudeSettings );
-    //
-    // var mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( {color: 0xffffff }) );
-    // mesh.position.z = 5;
-    // scene.add(mesh);
-    //---------------------------------------
-
-
-    // arcShape.autoClose = true;
-    // var holePath = new THREE.Path();
-    // holePath.moveTo( 20, 10 );
-    // holePath.absarc( 10, 10, 10, 0, Math.PI * 2, true );
-    //
-    // var circleRadius = 2;
-    // var circleShape = new THREE.Shape();
-    // circleShape.moveTo( 0, circleRadius );
-    // circleShape.quadraticCurveTo( circleRadius, circleRadius, circleRadius, 0 );
-    // circleShape.quadraticCurveTo( circleRadius, - circleRadius, 0, - circleRadius );
-    // circleShape.quadraticCurveTo( - circleRadius, - circleRadius, - circleRadius, 0 );
-    // circleShape.quadraticCurveTo( - circleRadius, circleRadius, 0, circleRadius );
-    //
-    // var points = arcShape.getPoints();
-    // var geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
-    //
-    // var line = new THREE.Line( geometryPoints, new THREE.LineBasicMaterial( { color: color, linewidth: 3 } ) );
-    // scene.add(line);
-    // points = holePath.getPoints();
-    // geometryPoints = new THREE.BufferGeometry().setFromPoints( points );
-    // line = new THREE.Line( geometryPoints, new THREE.LineBasicMaterial( { color: color, linewidth: 3 } ) );
-    // scene.add(line);
-
-
     camera.position.z = 300;
 }
 
