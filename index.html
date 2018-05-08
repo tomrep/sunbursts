@@ -9,5 +9,20 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     </head>
     <body onload="initialize()">
+        <div class="main">
+        </div>
+        <div class="filter">
+            <p>Filter by</p>
+            <select id="firstF" onchange="onChange()">
+                <option value=""></option>
+                <option value="time">Time</option>
+                <option value="type">Type</option>
+                <option value="size">Size</option>
+                <option value="count"># of Files</option>
+              </select>
+            <section id="secondF">
+
+            </section>
+        </div>
     </body>
 </html>
