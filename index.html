@@ -6,23 +6,66 @@
         <script src="libs/OrbitControls.js"></script>
         <script src="app.js"></script>
         <link href="style.css" rel=stylesheet>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
     </head>
     <body onload="initialize()">
-        <div class="main">
+        <div id="popups"></div>
+        <div id="details">
         </div>
-        <div class="filter">
-            <p>Filter by</p>
-            <select id="firstF" onchange="onChange()">
-                <option value=""></option>
-                <option value="time">Time</option>
-                <option value="type">Type</option>
-                <option value="size">Size</option>
-                <option value="count"># of Files</option>
-              </select>
-            <section id="secondF">
+        <div class="well well-sm legend">
+            <div class="col-md-6">
+                <label>Text</label>
+                <button type="button" class="btn btn-default" style="background-color:#f7db50"></button>
+                <label>Audio</label>
+                <button type="button" class="btn btn-default" style="background-color:#ce1e1e"></button>
+                <label>Video</label>
+                <button type="button" class="btn btn-default" style="background-color:#f74fd2"></button>
+            </div>
+            <div class="col-md-6">
+                <label>Image</label>
+                <button type="button" class="btn btn-default" style="background-color:#d8d8d6"></button>
+                <label>Code</label>
+                <button type="button" class="btn btn-default" style="background-color:#a0f74f"></button>
+                <label>Other</label>
+                <button type="button" class="btn btn-default" style="background-color:#353535"></button>
+            </div>
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <label>Directory</label>
+                    <button type="button" class="btn btn-default" style="background-color:#5191f7"></button>
+                </div>
+                <div class="col-md-2"></div>
 
-            </section>
+            </div>
+        </div>
+        <div class="well well-sm filter">
+                <div class="form-group">
+                    <label for="maxLvl"># of layers:</label>
+                    <input id="maxLvl" class="form-control" value="2" onchange="changeLayers()">
+                </div>
+                <div class="form-group">
+                    <label for="viewType">Select type:</label>
+                    <select class="form-control" id="viewType" onchange="changeLayout()">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
+                </div>
+            <div class="form-group">
+                <label for="filterBy">Filter by:</label>
+                <select class="form-control" id="filterBy" onchange="addFilterOptions()">
+                    <option value=""></option>
+                    <option value="time">Time</option>
+                    <option value="type">Type</option>
+                    <option value="size">Size</option>
+                    <option value="count"># of Files</option>
+                </select>
+            </div>
+            <section id="addOptions"></section>
         </div>
     </body>
 </html>
